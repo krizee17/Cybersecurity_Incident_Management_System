@@ -1,0 +1,59 @@
+{% extends "base.html.twig" %}
+
+{% block title %}View Incident - Cybersecurity Incident Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Incident Details</h2>
+    <div>
+        <a href="incident_edit.php?id={{ incident.id }}" class="btn btn-edit">Edit</a>
+        <a href="incidents.php" class="btn btn-secondary">Back to Incidents</a>
+    </div>
+</div>
+
+<div class="detail-card">
+    <div class="detail-row">
+        <strong>Incident ID:</strong>
+        <span>{{ incident.id }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Incident Type:</strong>
+        <span>{{ incident.incident_type|escape }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Date & Time:</strong>
+        <span>{{ incident.date_time|escape }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Affected System:</strong>
+        <span>{{ incident.system_name|escape }} ({{ incident.system_type|escape }})</span>
+    </div>
+    <div class="detail-row">
+        <strong>Severity:</strong>
+        <span><span class="severity-badge severity-{{ incident.severity|lower }}">{{ incident.severity|escape }}</span></span>
+    </div>
+    <div class="detail-row">
+        <strong>Status:</strong>
+        <span>
+            <span class="status-badge status-{{ incident.status|lower }}" 
+                  data-incident-id="{{ incident.id }}" 
+                  data-current-status="{{ incident.status|escape }}">
+                {{ incident.status|escape }}
+            </span>
+        </span>
+    </div>
+    <div class="detail-row">
+        <strong>Resolution Notes:</strong>
+        <div class="notes-content">{{ incident.resolution_notes|escape|nl2br }}</div>
+    </div>
+    <div class="detail-row">
+        <strong>Created At:</strong>
+        <span>{{ incident.created_at|escape }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Last Updated:</strong>
+        <span>{{ incident.updated_at|escape }}</span>
+    </div>
+</div>
+{% endblock %}
+

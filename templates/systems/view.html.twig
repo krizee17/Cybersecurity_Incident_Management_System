@@ -1,0 +1,73 @@
+{% extends "base.html.twig" %}
+
+{% block title %}View System - Cybersecurity Incident Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>System Details</h2>
+    <div>
+        <a href="system_edit.php?id={{ system.id }}" class="btn btn-edit">Edit</a>
+        <a href="systems.php" class="btn btn-secondary">Back to Systems</a>
+    </div>
+</div>
+
+<div class="detail-card">
+    <div class="detail-row">
+        <strong>System ID:</strong>
+        <span>{{ system.id }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Name:</strong>
+        <span>{{ system.name|escape }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Type:</strong>
+        <span><span class="type-badge">{{ system.type|escape }}</span></span>
+    </div>
+    <div class="detail-row">
+        <strong>Description:</strong>
+        <div class="notes-content">{{ system.description|default('N/A')|escape|nl2br }}</div>
+    </div>
+    <div class="detail-row">
+        <strong>Created At:</strong>
+        <span>{{ system.created_at|escape }}</span>
+    </div>
+    <div class="detail-row">
+        <strong>Last Updated:</strong>
+        <span>{{ system.updated_at|escape }}</span>
+    </div>
+</div>
+
+<div class="related-section">
+    <h3>Related Incidents ({{ incidents|length }})</h3>
+    {% if incidents is empty %}
+        <p>No incidents recorded for this system.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Date & Time</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for incident in incidents %}
+                    <tr>
+                        <td>{{ incident.id }}</td>
+                        <td>{{ incident.incident_type|escape }}</td>
+                        <td>{{ incident.date_time|escape }}</td>
+                        <td><span class="severity-badge severity-{{ incident.severity|lower }}">{{ incident.severity|escape }}</span></td>
+                        <td><span class="status-badge status-{{ incident.status|lower }}">{{ incident.status|escape }}</span></td>
+                        <td><a href="incident_view.php?id={{ incident.id }}" class="btn btn-sm btn-view">View</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -1,0 +1,80 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Edit Incident - Cybersecurity Incident Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Edit Incident</h2>
+    <a href="incident_view.php?id={{ incident.id }}" class="btn btn-secondary">Back to View</a>
+</div>
+
+{% if errors is not empty %}
+    <div class="alert alert-error">
+        <ul>
+            {% for error in errors %}
+                <li>{{ error|escape }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form method="POST" action="" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div class="form-group">
+        <label for="incident_type">Incident Type *</label>
+        <input type="text" id="incident_type" name="incident_type" required 
+               value="{{ form_data.incident_type|default(incident.incident_type)|escape }}">
+    </div>
+
+    <div class="form-group">
+        <label for="date_time">Date & Time *</label>
+        <input type="datetime-local" id="date_time" name="date_time" required 
+               value="{{ (form_data.date_time|default(incident.date_time))|datetime_local }}">
+    </div>
+
+    <div class="form-group">
+        <label for="affected_system_id">Affected System *</label>
+        <select id="affected_system_id" name="affected_system_id" required>
+            <option value="">Select a system</option>
+            {% for system in systems %}
+                <option value="{{ system.id }}" 
+                        {% if (form_data.affected_system_id|default(incident.affected_system_id)) == system.id %}selected{% endif %}>
+                    {{ system.name|escape }} ({{ system.type|escape }})
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="severity">Severity *</label>
+        <select id="severity" name="severity" required>
+            <option value="">Select severity</option>
+            <option value="Low" {% if (form_data.severity|default(incident.severity)) == 'Low' %}selected{% endif %}>Low</option>
+            <option value="Medium" {% if (form_data.severity|default(incident.severity)) == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="High" {% if (form_data.severity|default(incident.severity)) == 'High' %}selected{% endif %}>High</option>
+            <option value="Critical" {% if (form_data.severity|default(incident.severity)) == 'Critical' %}selected{% endif %}>Critical</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="status">Status *</label>
+        <select id="status" name="status" required>
+            <option value="Detected" {% if (form_data.status|default(incident.status)) == 'Detected' %}selected{% endif %}>Detected</option>
+            <option value="Investigating" {% if (form_data.status|default(incident.status)) == 'Investigating' %}selected{% endif %}>Investigating</option>
+            <option value="Resolved" {% if (form_data.status|default(incident.status)) == 'Resolved' %}selected{% endif %}>Resolved</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="resolution_notes">Resolution Notes</label>
+        <textarea id="resolution_notes" name="resolution_notes" rows="5">{{ form_data.resolution_notes|default(incident.resolution_notes)|escape }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Update Incident</button>
+        <a href="incident_view.php?id={{ incident.id }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+

@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($form_data['name'])) {
             $errors[] = "System name is required.";
         }
-        if (empty($form_data['type']) || !in_array($form_data['type'], ['Server', 'Application', 'Database'])) {
+        if (empty($form_data['type']) || !in_array($form_data['type'], ['Server', 'Application', 'Database', 'Firewall', 'Mail Gateway'])) {
             $errors[] = "Please select a valid system type.";
         }
         

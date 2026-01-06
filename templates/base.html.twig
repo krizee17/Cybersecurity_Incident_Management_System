@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SecureWatch - Incident Management{% endblock %}</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-container{% if show_right_sidebar|default(false) %} has-right-sidebar{% endif %}">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                            <rect width="32" height="32" rx="6" fill="#7C3AED"/>
+                            <text x="16" y="22" font-size="20" font-weight="bold" fill="white" text-anchor="middle">S</text>
+                        </svg>
+                    </div>
+                    <div class="logo-text">
+                        <div class="logo-title">SecureWatch</div>
+                        <div class="logo-subtitle">Incident Manager</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search...">
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">MAIN MENU</div>
+                    <a href="index.php" class="nav-item {{ is_active(current_page, 'dashboard') }}">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="incidents.php" class="nav-item {{ is_active(current_page, 'incidents') }}">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Incidents</span>
+                        {% if current_page == 'incidents' %}
+                        <span class="nav-badge">12</span>
+                        {% endif %}
+                    </a>
+                    <a href="systems.php" class="nav-item {{ is_active(current_page, 'systems') }}">
+                        <i class="fas fa-server"></i>
+                        <span>Systems</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <div class="header-icon">
+                        <i class="fas fa-exclamation-triangle" style="color: #e74c3c; font-size: 24px;"></i>
+                    </div>
+                    <div class="header-title-group">
+                        <h1 class="header-title">Incident Management System</h1>
+                        <p class="header-subtitle">Monitor and manage security incidents in real-time.</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="btn-status btn-status-success">
+                        <span class="status-dot"></span>
+                        System Operational
+                    </button>
+                    <a href="incident_create.php" class="btn-primary-new">
+                        <i class="fas fa-plus"></i>
+                        New Incident
+                    </a>
+                    <button class="btn-icon">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+        <!-- Right Sidebar (only shown on dashboard) -->
+        {% if show_right_sidebar|default(false) %}
+        <aside class="right-sidebar">
+            {% block right_sidebar %}
+            {% endblock %}
+        </aside>
+        {% endif %}
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

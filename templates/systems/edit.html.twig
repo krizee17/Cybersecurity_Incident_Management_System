@@ -1,0 +1,52 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Edit System - Cybersecurity Incident Management{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Edit System</h2>
+    <a href="system_view.php?id={{ system.id }}" class="btn btn-secondary">Back to View</a>
+</div>
+
+{% if errors is not empty %}
+    <div class="alert alert-error">
+        <ul>
+            {% for error in errors %}
+                <li>{{ error|escape }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form method="POST" action="" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div class="form-group">
+        <label for="name">System Name *</label>
+        <input type="text" id="name" name="name" required 
+               value="{{ form_data.name|default(system.name)|escape }}">
+    </div>
+
+    <div class="form-group">
+        <label for="type">System Type *</label>
+        <select id="type" name="type" required>
+            <option value="Server" {% if (form_data.type|default(system.type)) == 'Server' %}selected{% endif %}>Server</option>
+            <option value="Application" {% if (form_data.type|default(system.type)) == 'Application' %}selected{% endif %}>Application</option>
+            <option value="Database" {% if (form_data.type|default(system.type)) == 'Database' %}selected{% endif %}>Database</option>
+            <option value="Firewall" {% if (form_data.type|default(system.type)) == 'Firewall' %}selected{% endif %}>Firewall</option>
+            <option value="Mail Gateway" {% if (form_data.type|default(system.type)) == 'Mail Gateway' %}selected{% endif %}>Mail Gateway</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="5">{{ form_data.description|default(system.description)|escape }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Update System</button>
+        <a href="system_view.php?id={{ system.id }}" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+

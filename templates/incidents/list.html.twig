@@ -1,0 +1,263 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Incidents - SecureWatch Incident Management{% endblock %}
+
+{% block content %}
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+    <button class="filter-tab active">All Incidents</button>
+    <button class="filter-tab">Critical</button>
+    <button class="filter-tab">Active</button>
+    <button class="filter-tab">Resolved</button>
+    <button class="filter-tab">Archived</button>
+</div>
+
+<!-- Search and Actions Bar -->
+<div class="search-actions-bar">
+    <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search incidents..." 
+               value="{{ filters.search_text|default('')|escape }}"
+               onkeyup="handleSearch(event)">
+    </div>
+    <div class="action-buttons">
+        <button class="btn-filter" onclick="openFilterModal()">
+            <i class="fas fa-filter"></i>
+            Filter
+        </button>
+        <button class="btn-export" onclick="exportIncidents()">
+            <i class="fas fa-download"></i>
+            Export
+        </button>
+    </div>
+</div>
+
+<!-- Incidents Table -->
+<div class="table-container">
+    <table class="incident-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox"></th>
+                <th>ID</th>
+                <th>TITLE</th>
+                <th>SEVERITY</th>
+                <th>STATUS</th>
+                <th>ASSIGNED</th>
+                <th>ACT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if incidents is empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                        No incidents found. <a href="incident_create.php" style="color: var(--primary-purple);">Create one</a>
+                    </td>
+                </tr>
+            {% else %}
+                {% for incident in incidents %}
+                    <tr>
+                        <td><input type="checkbox"></td>
+                        <td class="incident-id">INC-{{ incident.id }}</td>
+                        <td>
+                            <div class="incident-title-group">
+                                <div class="incident-title">{{ incident.incident_type|escape }}</div>
+                                <div class="incident-meta">
+                                    <i class="fas fa-circle" style="font-size: 4px;"></i>
+                                    <span>{{ incident.system_name|escape }} ({{ incident.system_type|escape }})</span>
+                                    <i class="fas fa-circle" style="font-size: 4px;"></i>
+                                    <span>{{ incident.date_time|date_format('M d, Y g:i A') }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="severity-dot severity-{{ incident.severity|lower }}"></span>
+                            <span style="font-weight: 500;">{{ incident.severity|escape }}</span>
+                        </td>
+                        <td>
+                            {% if incident.status == 'Investigating' %}
+                                <span class="status-badge status-investigating" 
+                                      data-incident-id="{{ incident.id }}" 
+                                      data-current-status="{{ incident.status|escape }}">
+                                    <i class="fas fa-search" style="font-size: 10px;"></i>
+                                    {{ incident.status|escape }}
+                                </span>
+                            {% elseif incident.status == 'Resolved' %}
+                                <span class="status-badge status-resolved" 
+                                      data-incident-id="{{ incident.id }}" 
+                                      data-current-status="{{ incident.status|escape }}">
+                                    <i class="fas fa-check" style="font-size: 10px;"></i>
+                                    {{ incident.status|escape }}
+                                </span>
+                            {% elseif incident.status == 'Detected' %}
+                                <span class="status-badge status-in-progress" 
+                                      data-incident-id="{{ incident.id }}" 
+                                      data-current-status="{{ incident.status|escape }}">
+                                    <i class="fas fa-circle" style="font-size: 6px;"></i>
+                                    In Progress
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-in-progress" 
+                                      data-incident-id="{{ incident.id }}" 
+                                      data-current-status="{{ incident.status|escape }}">
+                                    <i class="fas fa-circle" style="font-size: 6px;"></i>
+                                    {{ incident.status|escape }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="assigned-avatar">
+                                {{ incident.system_name|slice(0, 1)|upper }}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <a href="incident_view.php?id={{ incident.id }}" class="action-icon" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="incident_edit.php?id={{ incident.id }}" class="action-icon" title="Edit" style="color: var(--warning);">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="incident_delete.php?id={{ incident.id }}" class="action-icon" title="Delete" style="color: var(--danger);" onclick="return confirm('Are you sure you want to delete this incident?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Filter Modal -->
+<div id="filter-modal" class="filter-modal" style="display: none;">
+    <div class="filter-modal-content">
+        <div class="filter-modal-header">
+            <h3>Filter Incidents</h3>
+            <button class="filter-modal-close" onclick="closeFilterModal()">&times;</button>
+        </div>
+        <div class="filter-modal-body">
+            <div class="form-group">
+                <label>Severity</label>
+                <select id="filter-severity">
+                    <option value="">All</option>
+                    <option value="Low" {% if filters.severity|default('') == 'Low' %}selected{% endif %}>Low</option>
+                    <option value="Medium" {% if filters.severity|default('') == 'Medium' %}selected{% endif %}>Medium</option>
+                    <option value="High" {% if filters.severity|default('') == 'High' %}selected{% endif %}>High</option>
+                    <option value="Critical" {% if filters.severity|default('') == 'Critical' %}selected{% endif %}>Critical</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <select id="filter-status">
+                    <option value="">All</option>
+                    <option value="Detected" {% if filters.status|default('') == 'Detected' %}selected{% endif %}>Detected</option>
+                    <option value="Investigating" {% if filters.status|default('') == 'Investigating' %}selected{% endif %}>Investigating</option>
+                    <option value="Resolved" {% if filters.status|default('') == 'Resolved' %}selected{% endif %}>Resolved</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Affected System</label>
+                <select id="filter-system">
+                    <option value="">All Systems</option>
+                    {% if systems is defined %}
+                        {% for system in systems %}
+                        <option value="{{ system.id }}" {% if filters.system_id|default(0) == system.id %}selected{% endif %}>
+                            {{ system.name }} ({{ system.type }})
+                        </option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date From</label>
+                <input type="date" id="filter-date-from" value="{{ filters.date_from|default('') }}">
+            </div>
+            <div class="form-group">
+                <label>Date To</label>
+                <input type="date" id="filter-date-to" value="{{ filters.date_to|default('') }}">
+            </div>
+        </div>
+        <div class="filter-modal-footer">
+            <button class="btn btn-secondary" onclick="clearFilters()">Clear</button>
+            <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentFilters = {
+        severity: '{{ filters.severity|default('')|escape('js') }}',
+        status: '{{ filters.status|default('')|escape('js') }}',
+        system_id: '{{ filters.system_id|default('')|escape('js') }}',
+        date_from: '{{ filters.date_from|default('')|escape('js') }}',
+        date_to: '{{ filters.date_to|default('')|escape('js') }}',
+        search_text: '{{ filters.search_text|default('')|escape('js') }}'
+    };
+    
+    // Search functionality
+    function handleSearch(event) {
+        if (event.key === 'Enter' || event.keyCode === 13) {
+            currentFilters.search_text = event.target.value;
+            applyFilters();
+        }
+    }
+    
+    // Open filter modal
+    function openFilterModal() {
+        document.getElementById('filter-modal').style.display = 'flex';
+    }
+    
+    // Close filter modal
+    function closeFilterModal() {
+        document.getElementById('filter-modal').style.display = 'none';
+    }
+    
+    // Apply filters
+    function applyFilters() {
+        currentFilters.severity = document.getElementById('filter-severity').value;
+        currentFilters.status = document.getElementById('filter-status').value;
+        currentFilters.system_id = document.getElementById('filter-system').value;
+        currentFilters.date_from = document.getElementById('filter-date-from').value;
+        currentFilters.date_to = document.getElementById('filter-date-to').value;
+        currentFilters.search_text = document.getElementById('search-input').value;
+        
+        const params = new URLSearchParams();
+        Object.keys(currentFilters).forEach(key => {
+            if (currentFilters[key]) {
+                params.append(key, currentFilters[key]);
+            }
+        });
+        
+        window.location.href = 'incidents.php?' + params.toString();
+    }
+    
+    // Clear filters
+    function clearFilters() {
+        window.location.href = 'incidents.php';
+    }
+    
+    // Export incidents
+    function exportIncidents() {
+        const params = new URLSearchParams();
+        Object.keys(currentFilters).forEach(key => {
+            if (currentFilters[key]) {
+                params.append(key, currentFilters[key]);
+            }
+        });
+        
+        window.location.href = 'api/export_incidents.php?' + params.toString();
+    }
+    
+    // Close modal when clicking outside
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('filter-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFilterModal();
+            }
+        });
+    });
+</script>
+{% endblock %}
