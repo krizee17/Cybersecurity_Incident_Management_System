@@ -27,11 +27,6 @@
                 </div>
             </div>
             
-            <div class="sidebar-search">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search...">
-            </div>
-            
             <nav class="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">MAIN MENU</div>
@@ -43,7 +38,6 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <span>Incidents</span>
                         {% if current_page == 'incidents' %}
-                        <span class="nav-badge">12</span>
                         {% endif %}
                     </a>
                     <a href="systems.php" class="nav-item {{ is_active(current_page, 'systems') }}">
